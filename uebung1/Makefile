@@ -1,3 +1,8 @@
+all: 
+	make -f Makefile hallowelt
+	make -f Makefile seq_fault
+	make -f Makefile sorted_list
+
 hallowelt: hallowelt.c
 	gcc hallowelt.c -o hallowelt
 	
