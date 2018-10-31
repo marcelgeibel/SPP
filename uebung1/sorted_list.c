@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "sorted_list.h"
 
 struct SortedLinkedListNode
@@ -22,21 +23,25 @@ SortedLinkedList* SortedLinkedList_create() {
 void SortedLinkedList_addToList( SortedLinkedList* list, int data ) {
 	SortedLinkedListNode* new_node = malloc( sizeof(SortedLinkedListNode) );
 	new_node->data = data;
-	if (list->first == NULL) list->first = new_node;
-	else {
-		SortedLinkedListNode* actual_node = list->first;
-		SortedLinkedListNode* next_node;
-		while (actual_node->next != NULL) {
-			next_node = actual_node->next;
-			if (next_node->data > data) { // es gibt Node mit größerem Wert in der Liste
-				new_node->next = actual_node->next; // neuer Node soll auf größeren Node zeigen
-				actual_node->next = new_node; // vorheriger Node soll auf neuen Node zeigen
-				return;
-			}
-		}
-		actual_node->next = new_node; // es gab keinen größeren Node: hänge neuen Node ans Ende der Liste
-		new_node->next = NULL;
+	new_node->next = NULL;
+	if (list->first == NULL) {
+		list->first = new_node;
+		return;
 	}
+	SortedLinkedListNode* actual_node = list->first;
+	if (actual_node->data > data) {
+		new_node->next = actual_node;
+		list->first = new_node;
+		return;
+	}
+	while (actual_node != NULL) {
+		if (actual_node->data > data) {
+			new_node->next = actual_node;
+			break;
+		}
+		actual_node = actual_node->next;
+	}
+	actual_node = new_node;
 	return;
 }
 
@@ -48,6 +53,7 @@ void SortedLinkedList_delete( SortedLinkedList* list ) {
 		while (actual_node != NULL) {
 			next_node = actual_node->next;
 			free( actual_node );
+			actual_node = next_node;
 		}
 	}
 	free( list );
@@ -60,5 +66,25 @@ SortedLinkedListNode* SortedLinkedList_getSmallest( SortedLinkedList* list ) {
 }
 
 int main() {
-	
+	printf("Starting test procedure...\n");
+	printf("Creating SortedLinkedList...\n");
+	SortedLinkedList* list = SortedLinkedList_create();
+	printf("Adress of list is %p.\n",list);
+	printf("Adding node with data = 3 into list.\n");
+	SortedLinkedList_addToList(list,3);
+	printf("Getting smallest value...\n");
+	SortedLinkedListNode* smallestNode = SortedLinkedList_getSmallest(list);
+	printf("Smallest value is %d.\n",smallestNode->data);
+	printf("Adding node with data = 5 into list.\n");
+	SortedLinkedList_addToList(list,5);
+	printf("Getting smallest value...\n");
+	SortedLinkedListNode* shouldBeSameAsSmallestNode = SortedLinkedList_getSmallest(list);
+	printf("Smallest value is %d.\n",shouldBeSameAsSmallestNode->data);
+	printf("Adding node with data = 1 into list.\n");
+	SortedLinkedList_addToList(list,1);
+	printf("Getting smallest value...\n");
+	SortedLinkedListNode* newSmallestNode = SortedLinkedList_getSmallest(list);
+	printf("Smallest value is %d.\n",newSmallestNode->data);
+	printf("Deleting list...\n");
+	SortedLinkedList_delete(list);
 }
